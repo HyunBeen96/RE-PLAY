@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QPushButton {
+  background: transparent;
+  border: none;
+  padding: 8px;
+}
+QPushButton:hover {
+  background-color: rgba(255, 255, 255, 30%);
+  border-radius: 16px;
+}
+QPushButton:pressed {
+  background-color: rgba(255, 255, 255, 60%);
+}</string>
+  </property>
+  <widget class="QTabWidget" name="tabWidget">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>10</y>
+     <width>297</width>
+     <height>561</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">/* ─── 배경 &amp; 컨테이너 ─── */
+#Form {
+    background-color: #F5F5F5;
+    border-radius: 12px;
+    /* drop shadow 는 코드에서 QGraphicsDropShadowEffect로 추가하세요 */
+}
+
+/* ─── 검색창 ─── */
+QLineEdit#lineEdit_search {
+    background-color: #FFFFFF;
+    border: 1px solid #DDD;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 14px;
+}
+QLineEdit#lineEdit_search::placeholder {
+    color: #AAA;
+    font-style: italic;
+}
+
+/* ─── 일반 버튼 ─── */
+QPushButton {
+    background-color: #FFFFFF;
+    border: 1px solid #DDD;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #444;
+}
+QPushButton:hover {
+    background-color: #F0F0F0;
+}
+QPushButton:pressed {
+    background-color: #E8E8E8;
+}
+
+/* ─── 리스트 위젯 ─── */
+QListWidget#list_playlist,
+QListWidget#list_playlist_2 {
+    background-color: #FFFFFF;
+    border: 1px solid #DDD;
+    border-radius: 8px;
+    padding: 4px;
+}
+QListWidget#list_playlist::item,
+QListWidget#list_playlist_2::item {
+    padding: 8px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+}
+QListWidget#list_playlist::item:selected,
+QListWidget#list_playlist_2::item:selected {
+    background-color: #E6F7FF;
+    color: #333;
+}
+
+/* ─── 추천 곡 박스 (혹은 QLabel/QFrame) ─── */
+QFrame#recommendFrame,
+QLabel#label_recommend {
+    background-color: #FFFFFF;
+    border: 1px solid #DDD;
+    border-radius: 8px;
+    padding: 8px;
+    color: #666;
+    font-size: 13px;
+}
+
+/* ─── 탭 스타일 (기존 거 필요하면 유지) ─── */
+QTabWidget#tabWidget {
+    background: transparent;
+    border: none;
+}
+QTabWidget#tabWidget::pane {
+    background-color: rgba(255,255,255,0.8);
+    border-radius: 8px;
+    margin: 0 8px 8px 8px;
+    border-top: 2px solid #444;
+}
+QTabBar::tab {
+    background: transparent;
+    color: #888;
+    padding: 8px 16px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    font: 10pt &quot;Segoe UI&quot;;
+}
+QTabBar::tab:!selected { background: transparent; }
+QTabBar::tab:selected {
+    background-color: #2d89ef;
+    color: white;
+    border: 1px solid #2d89ef;
+    border-bottom: none;
+}
+QTabBar::tab:hover {
+    background-color: rgba(255,255,255,0.3);
+    color: white;
+}</string>
+   </property>
+   <property name="currentIndex">
+    <number>1</number>
+   </property>
+   <widget class="QWidget" name="tabPlaylist">
+    <attribute name="title">
+     <string> Tab 1 </string>
+    </attribute>
+    <widget class="QListWidget" name="playlist">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>281</width>
+       <height>521</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tabSearch">
+    <attribute name="title">
+     <string>Tab 2</string>
+    </attribute>
+    <widget class="QListWidget" name="searchResults">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>130</y>
+       <width>281</width>
+       <height>391</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="searchLine">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>281</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>검색어를 입력하세요 (ex: 잔잔한, 몽환적인)</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>30</y>
+       <width>281</width>
+       <height>101</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="btnLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="topMargin">
+       <number>9</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
+      <property name="bottomMargin">
+       <number>9</number>
+      </property>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="btn_mellow_4">
+        <property name="text">
+         <string>잔잔한</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="btn_energetic">
+        <property name="text">
+         <string>에너지</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="btn_mellow">
+        <property name="text">
+         <string>잔잔한</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="btn_mellow_2">
+        <property name="text">
+         <string>잔잔한</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="btn_mellow_3">
+        <property name="text">
+         <string>잔잔한</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="btn_dreamy">
+        <property name="text">
+         <string>몽환적인</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="albumCover">
+   <property name="geometry">
+    <rect>
+     <x>69</x>
+     <y>190</y>
+     <width>341</width>
+     <height>271</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="currentTime">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>620</y>
+     <width>71</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>00:00</string>
+   </property>
+  </widget>
+  <widget class="QSlider" name="playBar">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>590</y>
+     <width>771</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="teamLogo">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>20</y>
+     <width>261</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">image: url(:/imgs/img/replay_logo3.png);</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblBackground">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>801</width>
+     <height>701</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnNext">
+   <property name="geometry">
+    <rect>
+     <x>430</x>
+     <y>640</y>
+     <width>50</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>⏭</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnPlay">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>640</y>
+     <width>50</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>▶</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnPrev">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>640</y>
+     <width>50</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>⏮</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="endTime">
+   <property name="geometry">
+    <rect>
+     <x>720</x>
+     <y>620</y>
+     <width>71</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>00:00</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="songTitle">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>510</y>
+     <width>430</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>노래 제목</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnRandom">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>640</y>
+     <width>50</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>⏮</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnRepeat">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>640</y>
+     <width>50</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>⏮</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnPause">
+   <property name="geometry">
+    <rect>
+     <x>370</x>
+     <y>600</y>
+     <width>50</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>▶</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnVolume">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>640</y>
+     <width>50</width>
+     <height>40</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>⏮</string>
+   </property>
+  </widget>
+  <zorder>lblBackground</zorder>
+  <zorder>tabWidget</zorder>
+  <zorder>albumCover</zorder>
+  <zorder>currentTime</zorder>
+  <zorder>playBar</zorder>
+  <zorder>btnNext</zorder>
+  <zorder>btnPlay</zorder>
+  <zorder>btnPrev</zorder>
+  <zorder>endTime</zorder>
+  <zorder>songTitle</zorder>
+  <zorder>btnRandom</zorder>
+  <zorder>btnRepeat</zorder>
+  <zorder>btnPause</zorder>
+  <zorder>btnVolume</zorder>
+  <zorder>teamLogo</zorder>
+ </widget>
+ <resources>
+  <include location="replay.qrc"/>
+ </resources>
+ <connections/>
+</ui>
