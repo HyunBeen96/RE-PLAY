@@ -5,12 +5,13 @@ import pickle
 import pandas as pd
 import random
 import vlc
+import os
 
 from sklearn.metrics.pairwise import linear_kernel
 from PyQt5 import uic
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QPixmap,QFontMetrics
-from PyQt5.QtCore import Qt, QStringListModel, QSortFilterProxyModel
+from PyQt5.QtGui import QPixmap,QFontMetrics, QColor, QBrush
+from PyQt5.QtCore import Qt, QStringListModel, QSortFilterProxyModel,QTimer
 from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QCompleter
 from PIL import Image, ImageFilter
 from io import BytesIO
@@ -77,6 +78,38 @@ class MainWindow(QMainWindow):
         self.overlay.setGeometry(self.lblBackground.rect())
         self.overlay.lower()
         self.overlay.show()
+
+        # ✅ 리스트위젯에 포커스 삭제
+        self.playlist.setFocusPolicy(Qt.NoFocus)
+        self.searchResults.setFocusPolicy(Qt.NoFocus)
+
+        # ✅ 플레이리스트에서 더블클릭 시 곡 재생
+        self.playlist.itemDoubleClicked.connect(self.on_playlist_double_clicked)
+
+        # ✅ 우클릭 시 해당 목록 삭제
+        self.playlist.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.playlist.customContextMenuRequested.connect(self.on_playlist_right_click)
+
+        # ✅ 1초마다 슬라이더/시간 업데이트용 타이머
+        self.sliderTimer = QTimer()
+        self.sliderTimer.setInterval(1000)
+        self.sliderTimer.timeout.connect(self.update_playbar)
+
+        # ✅ 슬라이더 움직이면 곡 위치 이동
+        self.playBar.sliderReleased.connect(self.seek_in_track)
+
+        # ✅다음곡 재생 이벤트 핸들러
+        self.vlc_player.event_manager().event_attach(
+            vlc.EventType.MediaPlayerEndReached,
+            self.on_song_finished
+        )
+
+        # ✅ 저장된 플레이리스트 불러오기
+        if os.path.exists("data/playlist.pkl" ):
+            with open("data/playlist.pkl" , "rb") as f:
+                saved_list = pickle.load(f)
+                for song in saved_list:
+                    self.add_to_playlist(song["title"], song["id"])
 
     def set_background_and_cover(self, video_id):
         url = f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
@@ -165,11 +198,16 @@ class MainWindow(QMainWindow):
         self.songTitle_2.setText(composer)
         self.set_background_and_cover(video_id)
         self.play_song_from_youtube(video_id)
+        self.current_video_id = video_id  # set_song_info_and_cover에서 저장
+
 
     def on_result_clicked(self, item):
-        title_raw = item.text()
+        title = item.toolTip()  # 말줄임표 대신 전체 제목
         video_id = item.data(Qt.UserRole)
-        self.set_song_info_and_cover(title_raw, video_id)
+
+        self.set_song_info_and_cover(title, video_id)
+        self.add_to_playlist(title, video_id)
+        self.highlight_current_playing(video_id)
 
     def play_song_from_youtube(self, video_id):
         try:
@@ -177,14 +215,121 @@ class MainWindow(QMainWindow):
 
             if self.vlc_player.is_playing():
                 self.vlc_player.stop()
+                self.sliderTimer.stop()
 
             media = self.vlc_instance.media_new(stream_url)
             self.vlc_player.set_media(media)
             self.vlc_player.play()
+            self.sliderTimer.start()  # ✅ VLC 재생 시작 시 슬라이더 갱신 시작
 
             print(f"🎵 Now Playing: {stream_url}")
         except Exception as e:
             print("❌ VLC 재생 실패:", e)
+
+    def add_to_playlist(self, title, video_id):
+        for i in range(self.playlist.count()):
+            if self.playlist.item(i).data(Qt.UserRole) == video_id:
+                return
+
+        fm = QFontMetrics(self.playlist.font())
+        item = QListWidgetItem(title)
+        item.setToolTip(title)
+        item.setData(Qt.UserRole, video_id)
+        self.playlist.insertItem(self.playlist.count(), item)
+
+    def highlight_current_playing(self, video_id):
+        fm = QFontMetrics(self.playlist.font())
+
+        for i in range(self.playlist.count()):
+            item = self.playlist.item(i)
+            full_title = item.toolTip()
+
+            is_playing = item.data(Qt.UserRole) == video_id
+
+            # ✅ 직접 색상 지정
+            if is_playing:
+                item.setText(full_title)
+                item.setBackground(QBrush(QColor(200, 200, 200, 100)))  # 연한 회색
+                item.setForeground(QBrush(Qt.white))
+
+                font = item.font()
+                font.setBold(True)
+                item.setFont(font)
+            else:
+                elided = fm.elidedText(full_title, Qt.ElideRight, self.playlist.viewport().width() - 20)
+                item.setText(elided)
+                item.setBackground(QBrush(Qt.transparent))  # 배경 제거
+                item.setForeground(QBrush(Qt.white))  # 글자색 고정
+
+    def on_playlist_double_clicked(self, item):
+        title = item.toolTip()
+        video_id = item.data(Qt.UserRole)
+
+        self.set_song_info_and_cover(title, video_id)
+        self.highlight_current_playing(video_id)
+
+    def on_playlist_right_click(self, pos):
+        item = self.playlist.itemAt(pos)
+        if item:
+            menu = QMenu(self)
+            delete_action = menu.addAction("재생목록에서 삭제")
+            action = menu.exec_(self.playlist.mapToGlobal(pos))
+            if action == delete_action:
+                self.playlist.takeItem(self.playlist.row(item))
+
+    def closeEvent(self, event):
+        playlist_data = []
+        for i in range(self.playlist.count()):
+            item = self.playlist.item(i)
+            playlist_data.append({
+                "title": item.toolTip(),
+                "id": item.data(Qt.UserRole)
+            })
+        with open("data/playlist.pkl" , "wb") as f:
+            pickle.dump(playlist_data, f)
+
+        super().closeEvent(event)
+
+    def update_playbar(self):
+        if self.vlc_player.is_playing():
+            current = self.vlc_player.get_time()  # 현재 시간 (ms)
+            total = self.vlc_player.get_length()  # 전체 길이 (ms)
+
+            if total > 0:
+                self.playBar.blockSignals(True)  # 사용자 조작 중복 방지
+                self.playBar.setMaximum(total)
+                self.playBar.setValue(current)
+                self.playBar.blockSignals(False)
+
+                self.currentTime.setText(self.format_time(current))
+                self.endTime.setText(self.format_time(total))
+
+    def seek_in_track(self):
+        position = self.playBar.value()
+        self.vlc_player.set_time(position)
+
+    def format_time(self, ms):
+        seconds = ms // 1000
+        m, s = divmod(seconds, 60)
+        return f"{m:02}:{s:02}"
+
+    def on_song_finished(self, event):
+        QTimer.singleShot(0, self.play_next_song)
+
+    def play_next_song(self):
+        current_id = None
+        for i in range(self.playlist.count()):
+            item = self.playlist.item(i)
+            if item.data(Qt.UserRole) == self.current_video_id:
+                current_id = i
+                break
+
+        if current_id is not None and current_id + 1 < self.playlist.count():
+            next_item = self.playlist.item(current_id + 1)
+            title = next_item.toolTip()
+            video_id = next_item.data(Qt.UserRole)
+            self.set_song_info_and_cover(title, video_id)
+            self.highlight_current_playing(video_id)
 
 
 def get_audio_url(video_id):

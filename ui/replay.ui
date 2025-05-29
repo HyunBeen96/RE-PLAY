@@ -124,20 +124,7 @@ QListWidget#searchResults {
     font-size: 13px;
 }
 
-/* 리스트 아이템 */
-QListWidget#playlist::item,
-QListWidget#searchResults::item {
-    padding: 8px;
-    margin-bottom: 4px;
-    border-radius: 4px;
-}
 
-/* 선택된 아이템 하이라이트 */
-QListWidget#playlist::item:selected,
-QListWidget#searchResults::item:selected {
-    background: rgba(45,137,239,0.55);           /* 파란색, 살짝 투명 */
-    color: #ffffff;
-}
 /* ───────────── 다크 글래스 버튼 ───────────── */
 QPushButton {
     background: rgba(255,255,255,0.08);          /* 살짝 밝은 투명 배경 */
@@ -161,7 +148,7 @@ QPushButton:pressed {
 }</string>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tabPlaylist">
     <attribute name="title">
@@ -169,7 +156,98 @@ QPushButton:pressed {
     </attribute>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
-      <widget class="QListWidget" name="playlist"/>
+      <widget class="QListWidget" name="playlist">
+       <property name="styleSheet">
+        <string notr="true">QScrollBar:vertical {
+    background: transparent;
+    width: 8px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(255, 255, 255, 0.3);
+    min-height: 20px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+    background: none;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
+}
+QScrollBar:horizontal {
+    background: transparent;
+    height: 8px;
+    margin: 0px 0px 0px 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background: rgba(255, 255, 255, 0.3);
+    min-width: 20px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+    background: none;
+}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: none;
+}
+QListWidget {
+    show-decoration-selected: 1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+/* 아이템 텍스트 줄바꿈 없이 말줄임표(...) 처리 */
+QListWidget::item {
+    height: 28px;
+    padding: 4px 10px;
+    white-space: nowrap;             /* 줄바꿈 금지 */
+    text-overflow: ellipsis;         /* 넘치면 ... 처리 */
+    overflow: hidden;                /* 넘치는 부분 숨김 */
+}
+/* 리스트 아이템 기본 스타일 */
+QListWidget::item {
+    height: 28px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+/* ✅ 클릭했을 때 (선택된 상태) */
+QListWidget::item:selected {
+    background: rgba(70, 120, 180, 100);  /* 어두운 파란색 + 투명 */
+    color: white;
+    font-weight: normal;
+}
+QListWidget::item,
+QListWidget::item:selected,
+QListWidget::item:focus,
+QListWidget::item:selected:focus {
+    outline: none;
+}
+</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -359,7 +437,43 @@ QScrollBar::sub-line:horizontal {
 QScrollBar::add-page:horizontal,
 QScrollBar::sub-page:horizontal {
     background: none;
-}</string>
+}
+QListWidget {
+    show-decoration-selected: 1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+/* 아이템 텍스트 줄바꿈 없이 말줄임표(...) 처리 */
+QListWidget::item {
+    height: 28px;
+    padding: 4px 10px;
+    white-space: nowrap;             /* 줄바꿈 금지 */
+    text-overflow: ellipsis;         /* 넘치면 ... 처리 */
+    overflow: hidden;                /* 넘치는 부분 숨김 */
+}
+/* 리스트 아이템 기본 스타일 */
+QListWidget::item {
+    height: 28px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+/* ✅ 클릭했을 때 (선택된 상태) */
+QListWidget::item:selected {
+    background: rgba(70, 120, 180, 100);  /* 어두운 파란색 + 투명 */
+    color: white;
+    font-weight: normal;
+}
+QListWidget::item,
+QListWidget::item:selected,
+QListWidget::item:focus,
+QListWidget::item:selected:focus {
+    outline: none;
+}
+</string>
        </property>
       </widget>
      </item>
