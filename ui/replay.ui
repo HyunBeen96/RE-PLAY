@@ -148,7 +148,7 @@ QPushButton:pressed {
 }</string>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tabPlaylist">
     <attribute name="title">
@@ -292,7 +292,7 @@ QListWidget::item:selected:focus {
         <number>9</number>
        </property>
        <item row="0" column="2">
-        <widget class="QPushButton" name="btn_mellow_4">
+        <widget class="QPushButton" name="btn_f">
          <property name="font">
           <font>
            <family>맑은 고딕</family>
@@ -307,7 +307,7 @@ QListWidget::item:selected:focus {
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QPushButton" name="btn_energetic">
+        <widget class="QPushButton" name="btn_b">
          <property name="font">
           <font>
            <family>맑은 고딕</family>
@@ -322,7 +322,7 @@ QListWidget::item:selected:focus {
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QPushButton" name="btn_mellow">
+        <widget class="QPushButton" name="btn_c">
          <property name="font">
           <font>
            <family>맑은 고딕</family>
@@ -337,7 +337,7 @@ QListWidget::item:selected:focus {
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QPushButton" name="btn_mellow_2">
+        <widget class="QPushButton" name="btn_d">
          <property name="font">
           <font>
            <family>맑은 고딕</family>
@@ -352,7 +352,7 @@ QListWidget::item:selected:focus {
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QPushButton" name="btn_mellow_3">
+        <widget class="QPushButton" name="btn_e">
          <property name="font">
           <font>
            <family>맑은 고딕</family>
@@ -367,7 +367,7 @@ QListWidget::item:selected:focus {
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QPushButton" name="btn_dreamy">
+        <widget class="QPushButton" name="btn_a">
          <property name="font">
           <font>
            <family>맑은 고딕</family>

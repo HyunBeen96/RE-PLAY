@@ -6,6 +6,8 @@ import pandas as pd
 import random
 import vlc
 import os
+import collections
+import re
 
 from sklearn.metrics.pairwise import linear_kernel
 from PyQt5 import uic
@@ -133,6 +135,13 @@ class MainWindow(QMainWindow):
         self.btnVolume2.installEventFilter(self)
         self.volumeSlider.installEventFilter(self)
         self.volumeSlider.valueChanged.connect(self.set_volume)
+
+        # ✅ stopword와 단어 전처리 설정
+        self.stop_words = []
+
+        # ✅ 자주 쓰인 단어 6개를 버튼에 넣기
+        self.set_random_keywords_to_buttons()
+
 
         # ✅ 저장된 플레이리스트 불러오기
         if os.path.exists("data/playlist.pkl" ):
@@ -466,6 +475,30 @@ class MainWindow(QMainWindow):
     def check_mouse_leave_volume_area(self):
         if not (self.btnVolume.underMouse() or self.btnVolume2.underMouse() or self.volumeSlider.underMouse()):
             self.volumeSlider.hide()
+
+    def set_random_keywords_to_buttons(self):
+        # 리뷰 전체를 하나의 문자열로 합침
+        all_reviews = ' '.join(self.df['reviews'].dropna().astype(str))
+        all_reviews = re.sub(r'[^가-힣\s]', '', all_reviews)  # 한글 이외 제거
+        words = all_reviews.split()
+
+        # 불용어 제거
+        words = [word for word in words if word not in self.stop_words and len(word) > 1]
+
+        # 가장 많이 등장한 단어 50개 중 6개 랜덤 선택
+        word_counts = collections.Counter(words)
+        common_words = [word for word, _ in word_counts.most_common(50)]
+        self.random_keywords = random.sample(common_words, 6)
+
+        # 버튼 리스트에 할당
+        self.keyword_buttons = [self.btn_a, self.btn_b, self.btn_c, self.btn_d, self.btn_e, self.btn_f]
+        for btn, word in zip(self.keyword_buttons, self.random_keywords):
+            btn.setText(word)
+            btn.clicked.connect(lambda _, w=word: self.search_by_keyword(w))
+
+    def search_by_keyword(self, keyword):
+        self.searchLine.setText(keyword)
+        self.on_search()
 
 
 
