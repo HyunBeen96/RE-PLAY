@@ -135,6 +135,8 @@ class MainWindow(QMainWindow):
         self.btnVolume2.installEventFilter(self)
         self.volumeSlider.installEventFilter(self)
         self.volumeSlider.valueChanged.connect(self.set_volume)
+        self.repeat_mode = False
+        self.random_mode = False
 
         # ✅ stopword와 단어 전처리 설정
         self.stop_words = []
