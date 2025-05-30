@@ -718,7 +718,22 @@ QListWidget::item:selected:focus {
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">image: url(:/imgs/img/btn9.png);</string>
+    <string notr="true">QPushButton#btnRandom {
+    background-color: transparent;
+    border: none;
+    image: url(:/imgs/img/btn9.png);  /* 기본 아이콘 */
+}
+
+QPushButton#btnRandom:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    image: url(:/imgs/img/btn9.png);  /* hover용 이미지가 있다면 */
+}
+
+QPushButton#btnRandom[active=&quot;true&quot;] {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    image: url(:/imgs/img/btn9.png);  /* 눌린 상태용 이미지 */
+}</string>
    </property>
    <property name="text">
     <string/>

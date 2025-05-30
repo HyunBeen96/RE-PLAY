@@ -11,7 +11,7 @@ from sklearn.metrics.pairwise import linear_kernel
 from PyQt5 import uic
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap,QFontMetrics, QColor, QBrush
-from PyQt5.QtCore import Qt, QStringListModel, QSortFilterProxyModel,QTimer
+from PyQt5.QtCore import Qt, QStringListModel, QSortFilterProxyModel,QTimer, QEvent
 from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QCompleter
 from PIL import Image, ImageFilter
 from io import BytesIO
@@ -103,6 +103,36 @@ class MainWindow(QMainWindow):
             vlc.EventType.MediaPlayerEndReached,
             self.on_song_finished
         )
+
+        # ✅버튼들 활성화
+        self.btnPause.hide()  # 처음엔 일시정지 버튼 숨김
+
+        self.btnPlay.clicked.connect(self.play_song_manual)
+        self.btnPause.clicked.connect(self.pause_song)
+
+        self.btnNext.clicked.connect(self.play_next_song)
+        self.btnPrev.clicked.connect(self.play_previous_song)
+
+        self.btnRandom.clicked.connect(self.toggle_random_mode)
+
+        self.btnRepeat1.show()
+        self.btnRepeat2.hide()
+        self.repeat_mode = False
+        self.btnRepeat1.clicked.connect(self.toggle_repeat)
+        self.btnRepeat2.clicked.connect(self.toggle_repeat)
+
+        self.btnVolume2.hide()  # 음소거 버튼 숨김
+        self.volumeSlider.hide()  # 슬라이더 숨김
+        self.previous_volume = 50  # 이전 볼륨값 기억용 (기본값 50)
+        self.volumeSlider.setValue(50)  # 초기 볼륨 50%
+
+        self.btnVolume.clicked.connect(self.mute_volume)
+        self.btnVolume2.clicked.connect(self.unmute_volume)
+
+        self.btnVolume.installEventFilter(self)
+        self.btnVolume2.installEventFilter(self)
+        self.volumeSlider.installEventFilter(self)
+        self.volumeSlider.valueChanged.connect(self.set_volume)
 
         # ✅ 저장된 플레이리스트 불러오기
         if os.path.exists("data/playlist.pkl" ):
@@ -209,6 +239,10 @@ class MainWindow(QMainWindow):
         self.add_to_playlist(title, video_id)
         self.highlight_current_playing(video_id)
 
+        # 🎯 강제로 버튼 상태 전환
+        self.btnPlay.hide()
+        self.btnPause.show()
+
     def play_song_from_youtube(self, video_id):
         try:
             stream_url = get_audio_url(video_id)
@@ -268,6 +302,10 @@ class MainWindow(QMainWindow):
         self.set_song_info_and_cover(title, video_id)
         self.highlight_current_playing(video_id)
 
+        # 🎯 강제로 버튼 상태 전환
+        self.btnPlay.hide()
+        self.btnPause.show()
+
     def on_playlist_right_click(self, pos):
         item = self.playlist.itemAt(pos)
         if item:
@@ -324,12 +362,111 @@ class MainWindow(QMainWindow):
                 current_id = i
                 break
 
-        if current_id is not None and current_id + 1 < self.playlist.count():
-            next_item = self.playlist.item(current_id + 1)
-            title = next_item.toolTip()
-            video_id = next_item.data(Qt.UserRole)
+        # 🔁 반복 모드일 경우: 같은 곡 다시 재생
+        if getattr(self, 'repeat_mode', False):
+            if current_id is not None:
+                current_item = self.playlist.item(current_id)
+                title = current_item.toolTip()
+                video_id = current_item.data(Qt.UserRole)
+                self.set_song_info_and_cover(title, video_id)
+                self.highlight_current_playing(video_id)
+                self.btnPlay.hide()
+                self.btnPause.show()
+            return
+
+        # 🎲 랜덤 모드일 경우
+        if self.random_mode:
+            import random
+            while True:
+                random_index = random.randint(0, self.playlist.count() - 1)
+                if random_index != current_id:
+                    break
+            next_item = self.playlist.item(random_index)
+
+        # ➡️ 일반 모드
+        else:
+            if current_id is not None and current_id + 1 < self.playlist.count():
+                next_item = self.playlist.item(current_id + 1)
+            else:
+                return
+
+        title = next_item.toolTip()
+        video_id = next_item.data(Qt.UserRole)
+        self.set_song_info_and_cover(title, video_id)
+        self.highlight_current_playing(video_id)
+        self.btnPlay.hide()
+        self.btnPause.show()
+
+    def play_previous_song(self):
+        current_id = None
+        for i in range(self.playlist.count()):
+            item = self.playlist.item(i)
+            if item.data(Qt.UserRole) == self.current_video_id:
+                current_id = i
+                break
+
+        if current_id is not None and current_id > 0:
+            prev_item = self.playlist.item(current_id - 1)
+            title = prev_item.toolTip()
+            video_id = prev_item.data(Qt.UserRole)
             self.set_song_info_and_cover(title, video_id)
             self.highlight_current_playing(video_id)
+
+            # ⏯️ 재생 버튼 UI 업데이트
+            self.btnPlay.hide()
+            self.btnPause.show()
+
+    def play_song_manual(self):
+        if self.vlc_player:
+            self.vlc_player.play()
+        self.btnPlay.hide()
+        self.btnPause.show()
+
+    def pause_song(self):
+        if self.vlc_player:
+            self.vlc_player.pause()
+        self.btnPause.hide()
+        self.btnPlay.show()
+
+    def toggle_random_mode(self):
+        self.random_mode = not getattr(self, 'random_mode', False)
+        self.btnRandom.setProperty("active", self.random_mode)
+        self.btnRandom.style().unpolish(self.btnRandom)
+        self.btnRandom.style().polish(self.btnRandom)
+
+    def toggle_repeat(self):
+        self.repeat_mode = not self.repeat_mode
+        self.btnRepeat1.setVisible(not self.repeat_mode)
+        self.btnRepeat2.setVisible(self.repeat_mode)
+
+    def set_volume(self, value):
+        if hasattr(self, 'vlc_player') and self.vlc_player is not None:
+            result = self.vlc_player.audio_set_volume(int(value))
+            print(f"볼륨 설정 시도: {value}, 결과: {result}")
+
+    def mute_volume(self):
+        self.previous_volume = self.volumeSlider.value()
+        self.volumeSlider.setValue(0)
+        self.btnVolume.hide()
+        self.btnVolume2.show()
+
+    def unmute_volume(self):
+        self.volumeSlider.setValue(self.previous_volume)
+        self.btnVolume2.hide()
+        self.btnVolume.show()
+
+    def eventFilter(self, source, event):
+        if source in (self.btnVolume, self.volumeSlider):
+            if event.type() == QEvent.Enter:
+                self.volumeSlider.show()
+            elif event.type() == QEvent.Leave:
+                QTimer.singleShot(1000, self.check_mouse_leave_volume_area)
+        return super().eventFilter(source, event)
+
+    def check_mouse_leave_volume_area(self):
+        if not (self.btnVolume.underMouse() or self.btnVolume2.underMouse() or self.volumeSlider.underMouse()):
+            self.volumeSlider.hide()
+
 
 
 def get_audio_url(video_id):
