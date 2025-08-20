@@ -173,6 +173,24 @@ python replay_ui_main.py
    - 우클릭으로 목록에서 삭제
    - 프로그램 종료 시 자동 저장
 
+## 🎥 시연영상
+
+### 시나리오
+1. search 탭에서 추천 분위기 선택
+2. 더블클릭으로 곡 재생 및 playlist 누적
+3. 직접 곡 제목 검색 및 분위기 검색 가능
+
+<div align="center">
+<a href="https://youtu.be/HKOyJ8LapNY">
+  <img src="https://img.youtube.com/vi/HKOyJ8LapNY/hqdefault.jpg" width="800">
+</a>
+</div>
+<div align="center">
+*클릭하면 데모 영상을 볼 수 있습니다*
+</div>
+
+
+
 ## 👥 팀 구성
 
 | 이름 | 역할 | 담당 업무 |
