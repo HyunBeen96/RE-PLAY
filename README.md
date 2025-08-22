@@ -1,6 +1,15 @@
 # 🎵 RE:PLAY - NCS Music Recommender
 
 <div align="center">
+<table>
+<tr>
+<td><img src="./images/image_7.png" width="800" alt="스크린1"></td>
+</tr>
+<td><img src="./images/image_8.png" width="800" alt="스크린1"></td>
+</table>
+</div>
+
+<div align="center">
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
   <img src="https://img.shields.io/badge/PyQt5-41CD52?style=for-the-badge&logo=qt&logoColor=white" />
   <img src="https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" />
@@ -16,7 +25,9 @@
 ### 🎯 핵심 기능
 - **키워드 기반 음악 추천**: Word2Vec과 TF-IDF를 활용한 지능형 추천 시스템
 - **제목 검색**: 음악 제목으로 직접 검색 가능
+
 - **분위기 검색**: '잔잔한', '에너지', '몽환적인' 등 감성 키워드로 검색
+
 - **YouTube 스트리밍**: VLC를 통한 실시간 YouTube 음악 재생
 - **재생목록 관리**: 자동 저장 및 불러오기 기능
 
